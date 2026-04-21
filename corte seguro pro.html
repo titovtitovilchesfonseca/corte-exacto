@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorteSeguro Pro - Optimizador de Corte de Jesus</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-inter@4.5.0/index.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-playfair-display@4.5.0/index.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #d4a574;
+            --primary-dark: #b8906a;
+            --primary-light: #e8c9a0;
+            --dark: #1a1a1a;
+            --darker: #0d0d0d;
+            --panel: #252525;
+            --panel-light: #2d2d2d;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --info: #60a5fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--darker);
+            color: #e5e5e5;
+            overflow-x: hidden;
+        }
+
+        .font-playfair {
+            font-family: 'Playfair Display', serif;
+        }
+
+        ::--scrollbar {
+            width: 6px;
+        }
+
+        ::--scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::--scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            background: rgba(13, 13, 13, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            padding: 0.7rem 2rem;
+            background: rgba(13, 13, 13, 0.95);
+        }
+
+        .nav-brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .nav-brand span {
+            color: var(--primary);
+        }
+
+        .nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 1px;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--panel);
+            z-index: 1001;
+            padding: 5rem 2rem 2rem;
+            transition: right 0.4s ease;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            display: none;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 1rem 0;
+            color: #ccc;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+        }
+
+        .mobile-menu a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--darker) 0%, #1a1210 50%, var(--darker) 100%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            opacity: 0.04;
+            background-image:
+                linear-gradient(rgba(212, 165, 116, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 165, 116, 0.3) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.2rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 50px;
+            color: var(--primary);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .hero-title span {
+            color: var(--primary);
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            color: #888;
+            max-width: 650px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 2rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(212, 165, 116, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+        }
+
+        .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.25);
+        }
+
+        .btn-success {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .btn-success:hover {
+            background: rgba(74, 222, 128, 0.25);
+        }
+
+        .btn-warning {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .btn-warning:hover {
+            background: rgba(251, 191, 36, 0.25);
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(212, 165, 116, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .form-select option {
+            background: var(--panel);
+            color: #fff;
+        }
+
+        .form-input::placeholder {
+            color: #555;
+        }
+
+        /* Board presets */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .preset-btn {
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            color: #ccc;
+        }
+
+        .preset-btn:hover,
+        .preset-btn.active {
+            border-color: var(--primary);
+            background: rgba(212, 165, 116, 0.08);
+            color: var(--primary);
+        }
+
+        .preset-btn .preset-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .preset-btn .preset-size {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 0.25rem;
+        }
+
+        /* Piece list */
+        .piece-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .piece-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto auto;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .piece-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .piece-name {
+            font-weight: 500;
+        }
+
+        .piece-dims {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .piece-qty {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Results */
+        .result-board {
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-stats {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .result-stat {
+            text-align: center;
+        }
+
+        .result-stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .result-stat-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .canvas-container {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* Summary cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Cut list */
+        .cut-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .cut-table th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            color: #888;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cut-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .desktop-nav {
+                display: none;
+            }
+
+            .hero-stats {
+                gap: 1.5rem;
+            }
+
+            .piece-item {
+                grid-template-columns: auto 1fr auto auto;
+            }
+
+            .piece-dims {
+                display: none;
+            }
+
+            .result-stats {
+                gap: 0.75rem;
+            }
+
+            .preset-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 100;
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            white-space: nowrap;
+        }
+
+        /* Tab system */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            color: #888;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .tab:hover {
+            color: #ccc;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Print */
+        @media print {
+
+            .navbar,
+            .hamburger,
+            .mobile-menu,
+            .mobile-overlay,
+            .hero,
+            .section:not(.print-section),
+            .btn,
+            .no-print {
+                display: none !important;
+            }
+
+            .section.print-section {
+                padding: 1rem;
+            }
+
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            .card,
+            .result-board,
+            .summary-card {
+                background: #fff;
+                border-color: #ddd;
+            }
+
+            .section-title,
+            .card-title,
+            .summary-value,
+            .result-stat-value {
+                color: #000;
+            }
+
+            .section-desc,
+            .form-label,
+            .summary-label,
+            .result-stat-label,
+            .cut-table th,
+            .piece-dims {
+                color: #555;
+            }
+
+            .cut-table td {
+                color: #333;
+            }
+
+            canvas {
+                max-width: 100%;
+            }
+        }
+
+        /* Notification toast */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            padding: 1rem 1.5rem;
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            min-width: 280px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 3px solid var(--warning);
+        }
+
+        .toast-message {
+            font-size: 0.9rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(212, 165, 116, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: rgba(212, 165, 116, 0.15);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger);
+        }
+
+        /* Custom range */
+        input[type="range"] {
+            -appearance: none;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        input[type="range"]::--slider-thumb {
+            --appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;">
+            <a href="#hero" class="nav-brand"><i class="fas fa-ruler-combined"
+                    style="margin-right:0.5rem;color:var(--primary);"></i>Corte<span>Seguro</span> Pro</a>
+            <div class="desktop-nav" style="display:flex;align-items:center;gap:0.25rem;">
+                <a href="#calculadora" class="nav-link">Calculadora</a>
+                <a href="#como-funciona" class="nav-link">Cómo Funciona</a>
+                <a href="#materiales" class="nav-link">Materiales</a>
+                <a href="#" class="nav-link" onclick="exportResults();return false;"><i class="fas fa-download"
+                        style="margin-right:0.3rem;"></i>Exportar</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#calculadora" onclick="toggleMobile()">Calculadora</a>
+        <a href="#como-funciona" onclick="toggleMobile()">Cómo Funciona</a>
+        <a href="#materiales" onclick="toggleMobile()">Materiales</a>
+        <a href="#" onclick="exportResults();toggleMobile();return false;">Exportar Resultados</a>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-tools"></i> Herramienta Profesional para Carpinteros</div>
+            <h1 class="hero-title">Optimización de <span>Corte</span> de Tableros</h1>
+            <p class="hero-desc">Calcula la forma más eficiente de cortar tus tableros de melamina, MDF, triplex y más.
+                Maximiza el material, minimiza el desperdicio.</p>
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                <a href="#calculadora" class="btn btn-primary"><i class="fas fa-calculator"></i> Calcular Cortes</a>
+                <a href="#como-funciona" class="btn btn-outline"><i class="fas fa-play-circle"></i> Ver Demo</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="statBoards">0</div>
+                    <div class="hero-stat-label">Tableros Ahorrados</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="statEfficiency">0%</div>
+                    <div class="hero-stat-label">Eficiencia Promedio</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="statClients">500+</div>
+                    <div class="hero-stat-label">Carpinteros Confían</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator -->
+    <section class="section print-section" id="calculadora"
+        style="background: linear-gradient(180deg, var(--darker) 0%, #111 100%);">
+        <div style="max-width:1200px;margin:0 auto;">
+            <div class="section-header fade-in">
+                <div class="section-label"><i class="fas fa-cogs"></i> Optimizador</div>
+                <h2 class="section-title font-playfair">Calculadora de Corte</h2>
+                <p class="section-desc">Configura tus tableros y piezas para obtener el plan de corte óptimo.</p>
+            </div>
+
+            <div class="tabs fade-in" id="calcTabs">
+                <div class="tab active" data-tab="board" onclick="switchTab('board')"><i class="fas fa-th-large"
+                        style="margin-right:0.5rem;"></i>Tableros</div>
+                <div class="tab" data-tab="pieces" onclick="switchTab('pieces')"><i class="fas fa-shapes"
+                        style="margin-right:0.5rem;"></i>Piezas</div>
+                <div class="tab" data-tab="config" onclick="switchTab('config')"><i class="fas fa-sliders-h"
+                        style="margin-right:0.5rem;"></i>Configuración</div>
+                <div class="tab" data-tab="results" onclick="switchTab('results')"><i class="fas fa-chart-bar"
+                        style="margin-right:0.5rem;"></i>Resultados</div>
+            </div>
+
+            <!-- Tab: Board -->
+            <div class="tab-content active" id="tab-board">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-th-large"
+                                style="color:var(--primary);margin-right:0.5rem;"></i>Configurar Tableros</h3>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Seleccionar Preset o Ingresar Dimensiones Personalizadas</label>
+                        <div class="preset-grid" id="presetGrid">
+                            <div class="preset-btn active"
+                                onclick="selectPreset(this, 2440, 1220, 'Melamina 2440×1220')">
+                                <div class="preset-name">Melamina</div>
+                                <div class="preset-size">2440 × 1220 mm</div>
+                            </div>
+                            <div class="preset-btn" onclick="selectPreset(this, 2750, 1830, 'Melamina 2750×1830')">
+                                <div class="preset-name">Melamina Grande</div>
+                                <div class="preset-size">2750 × 1830 mm</div>
+                            </div>
+                            <div class="preset-btn" onclick="selectPreset(this, 2440, 1830, 'MDF 2440×1830')">
+                                <div class="preset-name">MDF</div>
+                                <div class="preset-size">2440 × 1830 mm</div>
+                            </div>
+                            <div class="preset-btn" onclick="selectPreset(this, 1220, 1220, 'Triplex 1220×1220')">
+                                <div class="preset-name">Triplex/Contrachapado</div>
+                                <div class="preset-size">1220 × 1220 mm</div>
+                            </div>
+                            <div class="preset-btn" onclick="selectPreset(this, 2440, 1220, 'OSB 2440×1220')">
+                                <div class="preset-name">OSB</div>
+                                <div class="preset-size">2440 × 1220 mm</div>
+                            </div>
+                            <div class="preset-btn" onclick="selectPreset(this, 0, 0, 'Personalizado')">
+                                <div class="preset-name"><i class="fas fa-plus"
+                                        style="margin-right:0.3rem;"></i>Personalizado</div>
+                                <div class="preset-size">Ingresar medidas</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Dimensiones del Tablero (mm)</label>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                            <div>
+                                <input type="number" class="form-input" id="boardWidth" placeholder="Ancho (mm)"
+                                    value="2440" min="100" max="6000">
+                            </div>
+                            <div>
+                                <input type="number" class="form-input" id="boardHeight" placeholder="Largo (mm)"
+                                    value="1220" min="100" max="6000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Espesor del Tablero (mm)</label>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:0.5rem;">
+                            <div class="preset-btn" style="padding:0.5rem;" onclick="setThickness(this, 3)"><span
+                                    style="font-size:0.85rem;">3mm</span></div>
+                            <div class="preset-btn" style="padding:0.5rem;" onclick="setThickness(this, 5.5)"><span
+                                    style="font-size:0.85rem;">5.5mm</span></div>
+                            <div class="preset-btn active" style="padding:0.5rem;" onclick="setThickness(this, 9)"><span
+                                    style="font-size:0.85rem;">9mm</span></div>
+                            <div class="preset-btn" style="padding:0.5rem;" onclick="setThickness(this, 15)"><span
+                                    style="font-size:0.85rem;">15mm</span></div>
+                            <div class="preset-btn" style="padding:0.5rem;" onclick="setThickness(this, 18)"><span
+                                    style="font-size:0.85rem;">18mm</span></div>
+                            <div class="preset-btn" style="padding:0.5rem;" onclick="setThickness(this, 25)"><span
+                                    style="font-size:0.85rem;">25mm</span></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cantidad de Tableros Disponibles</label>
+                        <input type="number" class="form-input" id="boardCount" value="99" min="1" max="99">
+                    </div>
+
+                    <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
+                        <button class="btn btn-primary" onclick="switchTab('pieces')"><i class="fas fa-arrow-right"></i>
+                            Siguiente: Piezas</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Pieces -->
+            <div class="tab-content" id="tab-pieces">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-shapes"
+                                style="color:var(--primary);margin-right:0.5rem;"></i>Agregar Piezas</h3>
+                        <button class="btn btn-sm btn-success" onclick="addPiece()"><i class="fas fa-plus"></i> Agregar
+                            Pieza</button>
+                    </div>
+
+                    <div id="piecesList" class="piece-list">
+                        <!-- Pieces added here -->
+                    </div>
+
+                    <div id="piecesSummary"
+                        style="margin-top:1rem;padding:1rem;background:rgba(212,165,116,0.05);border-radius:10px;display:none;">
+                        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                            <span><i class="fas fa-layer-group"
+                                    style="color:var(--primary);margin-right:0.5rem;"></i>Total piezas: <strong
+                                    id="totalPieces">0</strong></span>
+                            <span><i class="fas fa-ruler-combined"
+                                    style="color:var(--primary);margin-right:0.5rem;"></i>Área total: <strong
+                                    id="totalArea">0</strong> mm²</span>
+                        </div>
+                    </div>
+
+                    <div
+                        style="display:flex;justify-content:space-between;margin-top:1.5rem;flex-wrap:wrap;gap:0.5rem;">
+                        <button class="btn btn-outline" onclick="switchTab('board')"><i class="fas fa-arrow-left"></i>
+                            Tableros</button>
+                        <div style="display:flex;gap:0.5rem;">
+                            <button class="btn btn-warning" onclick="loadSample()"><i class="fas fa-magic"></i>
+                                Ejemplo</button>
+                            <button class="btn btn-primary" onclick="switchTab('config')"><i
+                                    class="fas fa-arrow-right"></i> Configurar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Config -->
+            <div class="tab-content" id="tab-config">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-sliders-h"
+                                style="color:var(--primary);margin-right:0.5rem;"></i>Configuración de Corte</h3>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label">Grosor de Sierra (kerf) en mm</label>
+                            <input type="number" class="form-input" id="kerf" value="3" min="0" max="10" step="0.5">
+                            <div style="font-size:0.75rem;color:#666;margin-top:0.3rem;">El material que la sierra
+                                remueve en cada corte</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Margen de Desperdicio (mm)</label>
+                            <input type="number" class="form-input" id="margin" value="0" min="0" max="50" step="1">
+                            <div style="font-size:0.75rem;color:#666;margin-top:0.3rem;">Margen adicional por borde
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Permitir Rotación de Piezas</label>
+                            <div style="display:flex;gap:1rem;margin-top:0.5rem;">
+                                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                                    <input type="radio" name="rotation" value="yes" checked
+                                        style="accent-color:var(--primary);"> Sí
+                                </label>
+                                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                                    <input type="radio" name="rotation" value="no" style="accent-color:var(--primary);">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Algoritmo de Optimización</label>
+                            <select class="form-select" id="algorithm">
+                                <option value="maxrects">Maximal Rectangles (Recomendado)</option>
+                                <option value="shelf">Shelf (Estantes)</option>
+                                <option value="guillotine">Guillotina</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div
+                        style="display:flex;justify-content:space-between;margin-top:1.5rem;flex-wrap:wrap;gap:0.5rem;">
+                        <button class="btn btn-outline" onclick="switchTab('pieces')"><i class="fas fa-arrow-left"></i>
+                            Piezas</button>
+                        <button class="btn btn-primary" id="calculateBtn" onclick="calculate()"><i
+                                class="fas fa-calculator"></i> Calcular Optimización</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Results -->
+            <div class="tab-content" id="tab-results">
+                <div id="resultsContainer">
+                    <div class="fade-in" style="text-align:center;padding:4rem 2rem;">
+                        <i class="fas fa-calculator"
+                            style="font-size:4rem;color:var(--primary);opacity:0.3;margin-bottom:1.5rem;display:block;"></i>
+                        <h3 style="font-size:1.5rem;margin-bottom:0.75rem;">Sin Resultados Aún</h3>
+                        <p style="color:#888;">Configura tus tableros y piezas, luego presiona "Calcular Optimización"
+                            para ver los resultados.</p>
+                        <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="switchTab('board')"><i
+                                class="fas fa-arrow-left"></i> Comenzar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" id="como-funciona"
+        style="background: linear-gradient(180deg, #111 0%, var(--darker) 100%);">
+        <div style="max-width:1000px;margin:0 auto;">
+            <div class="section-header fade-in">
+                <div class="section-label"><i class="fas fa-info-circle"></i> Guía</div>
+                <h2 class="section-title font-playfair">¿Cómo Funciona?</h2>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;">
+                <div class="card fade-in" style="text-align:center;padding:2rem;">
+                    <div
+                        style="width:60px;height:60px;background:rgba(212,165,116,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                        <i class="fas fa-th-large" style="font-size:1.5rem;color:var(--primary);"></i>
+                    </div>
+                    <h4 style="margin-bottom:0.5rem;">1. Configura Tableros</h4>
+                    <p style="color:#888;font-size:0.9rem;">Selecciona el tipo de tablero o ingresa dimensiones
+                        personalizadas.</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:2rem;">
+                    <div
+                        style="width:60px;height:60px;background:rgba(212,165,116,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                        <i class="fas fa-shapes" style="font-size:1.5rem;color:var(--primary);"></i>
+                    </div>
+                    <h4 style="margin-bottom:0.5rem;">2. Agrega Piezas</h4>
+                    <p style="color:#888;font-size:0.9rem;">Ingresa las dimensiones de cada pieza que necesitas cortar y
+                        su cantidad.</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:2rem;">
+                    <div
+                        style="width:60px;height:60px;background:rgba(212,165,116,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                        <i class="fas fa-cogs" style="font-size:1.5rem;color:var(--primary);"></i>
+                    </div>
+                    <h4 style="margin-bottom:0.5rem;">3. Ajusta Configuración</h4>
+                    <p style="color:#888;font-size:0.9rem;">Configura el grosor de sierra, márgenes y permite o no
+                        rotación.</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:2rem;">
+                    <div
+                        style="width:60px;height:60px;background:rgba(212,165,116,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                        <i class="fas fa-chart-bar" style="font-size:1.5rem;color:var(--primary);"></i>
+                    </div>
+                    <h4 style="margin-bottom:0.5rem;">4. Obtén Resultados</h4>
+                    <p style="color:#888;font-size:0.9rem;">Visualiza el plan de corte optimizado con desperdicio
+                        mínimo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Materials -->
+    <section class="section" id="materiales">
+        <div style="max-width:1000px;margin:0 auto;">
+            <div class="section-header fade-in">
+                <div class="section-label"><i class="fas fa-layer-group"></i> Materiales</div>
+                <h2 class="section-title font-playfair">Materiales Compatibles</h2>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+                <div class="card fade-in" style="text-align:center;padding:1.5rem;">
+                    <i class="fas fa-border-all"
+                        style="font-size:2rem;color:var(--primary);margin-bottom:0.75rem;display:block;"></i>
+                    <h4 style="margin-bottom:0.3rem;">Melamina</h4>
+                    <p style="color:#888;font-size:0.85rem;">Tableros aglomerados con recubrimiento decorativo</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:1.5rem;">
+                    <i class="fas fa-square"
+                        style="font-size:2rem;color:var(--primary);margin-bottom:0.75rem;display:block;"></i>
+                    <h4 style="margin-bottom:0.3rem;">MDF</h4>
+                    <p style="color:#888;font-size:0.85rem;">Tablero de fibra de densidad media</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:1.5rem;">
+                    <i class="fas fa-layer-group"
+                        style="font-size:2rem;color:var(--primary);margin-bottom:0.75rem;display:block;"></i>
+                    <h4 style="margin-bottom:0.3rem;">Triplex</h4>
+                    <p style="color:#888;font-size:0.85rem;">Madera contrachapada de varias capas</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:1.5rem;">
+                    <i class="fas fa-th"
+                        style="font-size:2rem;color:var(--primary);margin-bottom:0.75rem;display:block;"></i>
+                    <h4 style="margin-bottom:0.3rem;">OSB</h4>
+                    <p style="color:#888;font-size:0.85rem;">Tablero de virutas orientadas</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:1.5rem;">
+                    <i class="fas fa-clone"
+                        style="font-size:2rem;color:var(--primary);margin-bottom:0.75rem;display:block;"></i>
+                    <h4 style="margin-bottom:0.3rem;">Madera Sólida</h4>
+                    <p style="color:#888;font-size:0.85rem;">Tableros de madera maciza</p>
+                </div>
+                <div class="card fade-in" style="text-align:center;padding:1.5rem;">
+                    <i class="fas fa-plus-circle"
+                        style="font-size:2rem;color:var(--primary);margin-bottom:0.75rem;display:block;"></i>
+                    <h4 style="margin-bottom:0.3rem;">Otros</h4>
+                    <p style="color:#888;font-size:0.85rem;">Cualquier material en formato tablero</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background:#0a0a0a;padding:3rem 2rem 2rem;border-top:1px solid rgba(255,255,255,0.03);">
+        <div style="max-width:1200px;margin:0 auto;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">Corte<span
+                    style="color:var(--primary);">Seguro</span> Pro</div>
+            <p style="color:#666;font-size:0.9rem;margin-bottom:1.5rem;">Herramienta profesional de optimización de
+                corte para carpinteros</p>
+            <p style="color:#444;font-size:0.8rem;">&copy; 2026 Luis Vilches. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Tooltip element -->
+    <div class="tooltip" id="tooltip" style="display:none;"></div>
+
+    <script>
+        // ===== GLOBALS =====
+        let pieces = [];
+        let pieceCounter = 0;
+        const pieceColors = [
+            '#d4a574', '#60a5fa', '#4ade80', '#f472b6', '#fbbf24', '#a78bfa',
+            '#34d399', '#fb923c', '#f87171', '#38bdf8', '#c084fc', '#22d3ee',
+            '#e879f9', '#84cc16', '#06b6d4', '#eab308', '#ec4899', '#10b981',
+            '#8b5cf6', '#ef4444', '#3b82f6', '#14b8a6', '#f59e0b', '#6366f1'
+        ];
+        let lastResults = null;
+
+        // ===== NAVIGATION =====
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            navbar.classList.toggle('scrolled', window.scrollY > 30);
+        });
+
+        function toggleMobile() {
+            document.getElementById('hamburger').classList.toggle('active');
+            document.getElementById('mobileMenu').classList.toggle('active');
+            document.getElementById('mobileOverlay').classList.toggle('active');
+        }
+        document.getElementById('hamburger').addEventListener('click', toggleMobile);
+        document.getElementById('mobileOverlay').addEventListener('click', toggleMobile);
+
+        document.querySelectorAll('.mobile-menu a, .desktop-nav a').forEach(link => {
+            link.addEventListener('click', function (e) {
+                if (this.getAttribute('href') && this.getAttribute('href').startsWith('#')) {
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+
+        // ===== TABS =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.toggle('active', tc.id === `tab-${tabName}`));
+            if (tabName === 'pieces') renderPieces();
+            if (tabName === 'results' && lastResults) renderResults(lastResults);
+            setTimeout(() => {
+                document.querySelectorAll('.tab-content.active .fade-in').forEach(el => el.classList.add('visible'));
+            }, 50);
+        }
+
+        // ===== BOARD PRESETS =====
+        function selectPreset(el, w, h, name) {
+            document.querySelectorAll('#presetGrid .preset-btn').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            if (w > 0) {
+                document.getElementById('boardWidth').value = w;
+                document.getElementById('boardHeight').value = h;
+            }
+        }
+
+        function setThickness(el, val) {
+            el.parentElement.querySelectorAll('.preset-btn').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // ===== PIECES =====
+        function addPiece(name = '', width = '', height = '', qty = 1) {
+            pieceCounter++;
+            const colorIdx = (pieceCounter - 1) % pieceColors.length;
+            pieces.push({
+                id: pieceCounter,
+                name: name || `Pieza ${pieceCounter}`,
+                width: width,
+                height: height,
+                qty: qty,
+                color: pieceColors[colorIdx]
+            });
+            renderPieces();
+        }
+
+        function removePiece(id) {
+            pieces = pieces.filter(p => p.id !== id);
+            renderPieces();
+        }
+
+        function updatePiece(id, field, value) {
+            const p = pieces.find(p => p.id === id);
+            if (p) {
+                if (field === 'qty') p[field] = parseInt(value) || 1;
+                else p[field] = value;
+                updatePiecesSummary();
+            }
+        }
+
+        function renderPieces() {
+            const container = document.getElementById('piecesList');
+            if (pieces.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:3rem;color:#666;">
+                        <i class="fas fa-plus-circle" style="font-size:3rem;margin-bottom:1rem;display:block;opacity:0.3;"></i>
+                        <p>Agrega piezas para comenzar</p>
+                    </div>`;
+            } else {
+                container.innerHTML = pieces.map(p => `
+                    <div class="piece-item" id="piece-${p.id}">
+                        <div class="piece-color" style="background:${p.color};"></div>
+                        <div>
+                            <input type="text" class="form-input" style="padding:0.5rem;font-size:0.9rem;" value="${p.name}" 
+                                onchange="updatePiece(${p.id},'name',this.value)" placeholder="Nombre">
+                        </div>
+                        <div style="display:flex;gap:0.5rem;">
+                            <input type="number" class="form-input" style="width:80px;padding:0.5rem;font-size:0.85rem;" value="${p.width}" 
+                                onchange="updatePiece(${p.id},'width',this.value)" placeholder="Ancho">
+                            <input type="number" class="form-input" style="width:80px;padding:0.5rem;font-size:0.85rem;" value="${p.height}" 
+                                onchange="updatePiece(${p.id},'height',this.value)" placeholder="Largo">
+                        </div>
+                        <input type="number" class="form-input" style="width:60px;padding:0.5rem;font-size:0.85rem;" value="${p.qty}" 
+                            onchange="updatePiece(${p.id},'qty',this.value)" placeholder="Cant." min="1">
+                        <button class="btn btn-icon btn-danger btn-sm" onclick="removePiece(${p.id})" title="Eliminar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            updatePiecesSummary();
+        }
+
+        function updatePiecesSummary() {
+            let totalQty = pieces.reduce((sum, p) => sum + (p.qty || 0), 0);
+            let totalArea = pieces.reduce((sum, p) => sum + (p.width || 0) * (p.height || 0) * (p.qty || 0), 0);
+            document.getElementById('totalPieces').textContent = totalQty;
+            document.getElementById('totalArea').textContent = totalArea.toLocaleString();
+            document.getElementById('piecesSummary').style.display = totalQty > 0 ? 'block' : 'none';
+        }
+
+        function loadSample() {
+            pieces = [];
+            pieceCounter = 0;
+            addPiece('Lateral Gabinete', 600, 700, 2);
+            addPiece('Base Gabinete', 564, 580, 2);
+            addPiece('Estante', 564, 280, 4);
+            addPiece('Puerta', 280, 560, 4);
+            addPiece('Fondo', 590, 690, 1);
+            addPiece('Repisa', 800, 250, 6);
+            addPiece('Cajón Frente', 450, 120, 3);
+            showToast('Piezas de ejemplo cargadas', 'success');
+        }
+
+        // ===== TOAST =====
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = { success: 'check-circle', error: 'times-circle', warning: 'exclamation-triangle' };
+            toast.innerHTML = `<i class="fas fa-${icons[type]}" style="color:var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'warning'});"></i><span class="toast-message">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100px)'; toast.style.transition = 'all 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // ===== OPTIMIZATION ALGORITHM =====
+        function calculate() {
+            const bw = parseInt(document.getElementById('boardWidth').value) || 0;
+            const bh = parseInt(document.getElementById('boardHeight').value) || 0;
+            const kerf = parseFloat(document.getElementById('kerf').value) || 0;
+            const margin = parseFloat(document.getElementById('margin').value) || 0;
+            const allowRotation = document.querySelector('input[name="rotation"]:checked').value === 'yes';
+            const algo = document.getElementById('algorithm').value;
+
+            if (bw <= 0 || bh <= 0) { showToast('Ingresa dimensiones válidas del tablero', 'error'); return; }
+            if (pieces.length === 0) { showToast('Agrega al menos una pieza', 'error'); return; }
+
+            const validPieces = pieces.filter(p => p.width > 0 && p.height > 0);
+            if (validPieces.length === 0) { showToast('Las piezas deben tener dimensiones válidas', 'error'); return; }
+
+            // Expand pieces by quantity
+            let allPieces = [];
+            validPieces.forEach(p => {
+                for (let i = 0; i < p.qty; i++) {
+                    allPieces.push({
+                        name: p.name,
+                        width: p.width,
+                        height: p.height,
+                        color: p.color,
+                        id: p.id
+                    });
+                }
+            });
+
+            // Sort by area descending (heuristic)
+            allPieces.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+
+            const maxBoards = parseInt(document.getElementById('boardCount').value) || 99;
+            const boards = [];
+
+            // Maximal Rectangles algorithm
+            if (algo === 'maxrects' || algo === 'guillotine') {
+                let currentBoard = createBoard(bw, bh);
+
+                for (let piece of allPieces) {
+                    let placed = false;
+
+                    // Try to place in current board
+                    let best = findBestPosition(currentBoard, piece, kerf, margin, allowRotation);
+                    if (best) {
+                        placePiece(currentBoard, piece, best, kerf, margin);
+                        placed = true;
+                    }
+
+                    // Try other boards
+                    if (!placed) {
+                        for (let board of boards) {
+                            let b2 = findBestPosition(board, piece, kerf, margin, allowRotation);
+                            if (b2) {
+                                placePiece(board, piece, b2, kerf, margin);
+                                placed = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Create new board if needed
+                    if (!placed) {
+                        if (boards.length + 1 > maxBoards) {
+                            showToast(`No caben todas las piezas en ${maxBoards} tableros`, 'warning');
+                            break;
+                        }
+                        currentBoard = createBoard(bw, bh);
+                        boards.push(currentBoard);
+
+                        let b3 = findBestPosition(currentBoard, piece, kerf, margin, allowRotation);
+                        if (b3) {
+                            placePiece(currentBoard, piece, b3, kerf, margin);
+                            placed = true;
+                        }
+                    }
+
+                    if (!placed) {
+                        showToast(`La pieza "${piece.name}" (${piece.width}×${piece.height}) no cabe en ningún tablero`, 'error');
+                    }
+                }
+
+                if (boards.length > 0) {
+                    boards.unshift(currentBoard);
+                } else if (allPieces.length > 0) {
+                    boards.push(currentBoard);
+                }
+            } else {
+                // Shelf algorithm
+                boards.push(...shelfPack(allPieces, bw, bh, kerf, margin, allowRotation, maxBoards));
+            }
+
+            // Calculate stats
+            let totalBoardArea = boards.length * bw * bh;
+            let usedArea = 0;
+            let allPlaced = [];
+
+            boards.forEach(board => {
+                board.pieces.forEach(p => {
+                    usedArea += p.width * p.height;
+                    allPlaced.push(p);
+                });
+            });
+
+            let waste = totalBoardArea - usedArea;
+            let efficiency = totalBoardArea > 0 ? (usedArea / totalBoardArea * 100).toFixed(1) : 0;
+
+            lastResults = {
+                boards, bw, bh, kerf, margin,
+                totalBoardArea, usedArea, waste, efficiency,
+                allPlaced, allPieces,
+                boardsUsed: boards.length
+            };
+
+            renderResults(lastResults);
+            switchTab('results');
+
+            // Update stats
+            document.getElementById('statBoards').textContent = boards.length;
+            document.getElementById('statEfficiency').textContent = efficiency + '%';
+
+            showToast(`Optimización completada: ${boards.length} tablero(s), ${efficiency}% eficiencia`, 'success');
+        }
+
+        function createBoard(w, h) {
+            return {
+                width: w, height: h,
+                pieces: [],
+                freeRects: [{ x: 0, y: 0, width: w, height: h }]
+            };
+        }
+
+        function findBestPosition(board, piece, kerf, margin, allowRotation) {
+            let bestRect = null;
+            let bestScore = Infinity;
+            let rotated = false;
+
+            for (let rect of board.freeRects) {
+                // Check normal orientation
+                if (piece.width + kerf + margin * 2 <= rect.width && piece.height + kerf + margin * 2 <= rect.height) {
+                    let score = scoreRect(rect.width - piece.width - kerf, rect.height - piece.height - kerf);
+                    if (score < bestScore) {
+                        bestScore = score;
+                        bestRect = { x: rect.x, y: rect.y, width: piece.width, height: piece.height, rect };
+                        rotated = false;
+                    }
+                }
+
+                // Check rotated
+                if (allowRotation && piece.width !== piece.height) {
+                    if (piece.height + kerf + margin * 2 <= rect.width && piece.width + kerf + margin * 2 <= rect.height) {
+                        let score = scoreRect(rect.width - piece.height - kerf, rect.height - piece.width - kerf);
+                        if (score < bestScore) {
+                            bestScore = score;
+                            bestRect = { x: rect.x, y: rect.y, width: piece.height, height: piece.width, rect };
+                            rotated = true;
+                        }
+                    }
+                }
+            }
+
+            if (bestRect) {
+                bestRect.rotated = rotated;
+            }
+            return bestRect;
+        }
+
+        function scoreRect(w, h) {
+            return Math.min(w, h); // Best short side fit
+        }
+
+        function placePiece(board, piece, best, kerf, margin) {
+            let placedPiece = {
+                name: piece.name,
+                width: piece.width,
+                height: piece.height,
+                color: piece.color,
+                id: piece.id,
+                x: best.x,
+                y: best.y,
+                rotated: best.rotated
+            };
+
+            board.pieces.push(placedPiece);
+
+            // Split free rectangles
+            let newFree = [];
+            let toRemove = new Set();
+
+            for (let i = 0; i < board.freeRects.length; i++) {
+                let rect = board.freeRects[i];
+
+                // Check overlap with placed piece (with kerf)
+                let px = best.x, py = best.y;
+                let pw = placedPiece.width + kerf, ph = placedPiece.height + kerf;
+
+                let overlapX = Math.max(0, Math.min(rect.x + rect.width, px + pw) - Math.max(rect.x, px));
+                let overlapY = Math.max(0, Math.min(rect.y + rect.height, py + ph) - Math.max(rect.y, py));
+                let overlapArea = overlapX * overlapY;
+
+                if (overlapArea > 0) {
+                    toRemove.add(i);
+
+                    // Split into up to 4 rectangles
+                    // Left
+                    if (px > rect.x) {
+                        newFree.push({ x: rect.x, y: rect.y, width: px - rect.x, height: rect.height });
+                    }
+                    // Right
+                    if (px + pw < rect.x + rect.width) {
+                        newFree.push({ x: px + pw, y: rect.y, width: rect.x + rect.width - px - pw, height: rect.height });
+                    }
+                    // Top
+                    if (py > rect.y) {
+                        newFree.push({ x: rect.x, y: rect.y, width: rect.width, height: py - rect.y });
+                    }
+                    // Bottom
+                    if (py + ph < rect.y + rect.height) {
+                        newFree.push({ x: rect.x, y: py + ph, width: rect.width, height: rect.y + rect.height - py - ph });
+                    }
+                }
+            }
+
+            // Remove overlapping rects
+            board.freeRects = board.freeRects.filter((_, i) => !toRemove.has(i));
+
+            // Add new free rects and prune
+            newFree.forEach(r => {
+                if (r.width > 10 && r.height > 10) {
+                    board.freeRects.push(r);
+                }
+            });
+
+            pruneFreeRects(board);
+        }
+
+        function pruneFreeRects(board) {
+            // Remove rectangles that are contained within others
+            let pruned = [];
+            for (let i = 0; i < board.freeRects.length; i++) {
+                let contained = false;
+                for (let j = 0; j < board.freeRects.length; j++) {
+                    if (i !== j && isContained(board.freeRects[i], board.freeRects[j])) {
+                        contained = true;
+                        break;
+                    }
+                }
+                if (!contained) {
+                    pruned.push(board.freeRects[i]);
+                }
+            }
+            board.freeRects = pruned;
+        }
+
+        function isContained(a, b) {
+            return a.x >= b.x && a.y >= b.y && a.x + a.width <= b.x + b.width && a.y + a.height <= b.y + b.height;
+        }
+
+        function shelfPack(allPieces, bw, bh, kerf, margin, allowRotation, maxBoards) {
+            let boards = [];
+            let currentBoard = { width: bw, height: bh, shelves: [], pieces: [] };
+            boards.push(currentBoard);
+
+            let shelfH = 0;
+            let shelfY = 0;
+            let shelfX = 0;
+
+            for (let piece of allPieces) {
+                let pw = piece.width + kerf;
+                let ph = piece.height + kerf;
+                let placed = false;
+
+                // Try current shelf
+                if (shelfX + pw <= bw + kerf) {
+                    let neededH = Math.max(shelfH, ph);
+                    if (shelfY + neededH <= bh + kerf) {
+                        shelfH = Math.max(shelfH, ph);
+                        currentBoard.pieces.push({
+                            name: piece.name, width: piece.width, height: piece.height,
+                            color: piece.color, id: piece.id, x: shelfX, y: shelfY, rotated: false
+                        });
+                        shelfX += pw;
+                        placed = true;
+                    }
+                }
+
+                // New shelf in current board
+                if (!placed) {
+                    shelfY += shelfH + kerf;
+                    shelfX = 0;
+                    shelfH = 0;
+
+                    if (shelfY + ph <= bh + kerf) {
+                        shelfH = ph;
+                        currentBoard.pieces.push({
+                            name: piece.name, width: piece.width, height: piece.height,
+                            color: piece.color, id: piece.id, x: 0, y: shelfY, rotated: false
+                        });
+                        shelfX = pw;
+                        placed = true;
+                    }
+                }
+
+                // New board
+                if (!placed) {
+                    if (boards.length >= maxBoards) {
+                        showToast('No hay suficientes tableros', 'warning');
+                        break;
+                    }
+                    currentBoard = { width: bw, height: bh, shelves: [], pieces: [] };
+                    boards.push(currentBoard);
+                    shelfY = 0; shelfX = 0; shelfH = ph;
+                    currentBoard.pieces.push({
+                        name: piece.name, width: piece.width, height: piece.height,
+                        color: piece.color, id: piece.id, x: 0, y: 0, rotated: false
+                    });
+                    shelfX = pw;
+                    placed = true;
+                }
+            }
+
+            return boards;
+        }
+
+        // ===== RENDER RESULTS =====
+        function renderResults(data) {
+            const container = document.getElementById('resultsContainer');
+
+            let boardsHtml = data.boards.map((board, idx) => {
+                let boardUsedArea = board.pieces.reduce((s, p) => s + p.width * p.height, 0);
+                let boardEff = (boardUsedArea / (data.bw * data.bh) * 100).toFixed(1);
+                let boardWaste = ((data.bw * data.bh - boardUsedArea) / (data.bw * data.bh) * 100).toFixed(1);
+
+                return `
+                    <div class="result-board fade-in">
+                        <div class="result-header">
+                            <div>
+                                <h4 style="font-size:1rem;font-weight:600;">Tablero ${idx + 1}</h4>
+                                <span class="badge badge-primary">${data.bw} × ${data.bh} mm</span>
+                            </div>
+                            <div class="result-stats">
+                                <div class="result-stat">
+                                    <div class="result-stat-value" style="color:var(--success);">${boardEff}%</div>
+                                    <div class="result-stat-label">Aprovechado</div>
+                                </div>
+                                <div class="result-stat">
+                                    <div class="result-stat-value" style="color:var(--danger);">${boardWaste}%</div>
+                                    <div class="result-stat-label">Desperdicio</div>
+                                </div>
+                                <div class="result-stat">
+                                    <div class="result-stat-value">${board.pieces.length}</div>
+                                    <div class="result-stat-label">Piezas</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="canvas-container">
+                            <canvas id="canvas-${idx}" width="${Math.min(700, data.bw * 0.4)}" height="${Math.min(700, data.bw * 0.4) / data.bw * data.bh}"></canvas>
+                        </div>
+                        <div style="padding:1rem 1.5rem;">
+                            <h5 style="font-size:0.9rem;margin-bottom:0.75rem;color:#aaa;">Piezas en este tablero:</h5>
+                            <table class="cut-table">
+                                <thead><tr><th>Pieza</th><th>Ancho</th><th>Largo</th><th>Pos X</th><th>Pos Y</th><th>Rotada</th></tr></thead>
+                                <tbody>
+                                    ${board.pieces.map(p => `
+                                        <tr>
+                                            <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${p.color};margin-right:0.5rem;vertical-align:middle;"></span>${p.name}</td>
+                                            <td>${p.width} mm</td>
+                                            <td>${p.height} mm</td>
+                                            <td>${p.x} mm</td>
+                                            <td>${p.y} mm</td>
+                                            <td>${p.rotated ? '<i class="fas fa-check" style="color:var(--primary);"></i> Sí' : 'No'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Cut list (all pieces)
+            let cutListHtml = '';
+            let pieceSummary = {};
+            data.allPlaced.forEach(p => {
+                let key = `${p.name}-${p.width}x${p.height}`;
+                if (!pieceSummary[key]) {
+                    pieceSummary[key] = { name: p.name, width: p.width, height: p.height, count: 0, color: p.color };
+                }
+                pieceSummary[key].count++;
+            });
+
+            cutListHtml = `
+                <div class="card fade-in" style="margin-top:1.5rem;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-list" style="color:var(--primary);margin-right:0.5rem;"></i>Lista de Corte</h3>
+                    </div>
+                    <table class="cut-table">
+                        <thead><tr><th>Pieza</th><th>Ancho</th><th>Largo</th><th>Cantidad</th><th>Área Total</th></tr></thead>
+                        <tbody>
+                            ${Object.values(pieceSummary).map(p => `
+                                <tr>
+                                    <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${p.color};margin-right:0.5rem;vertical-align:middle;"></span>${p.name}</td>
+                                    <td>${p.width} mm</td>
+                                    <td>${p.height} mm</td>
+                                    <td><strong>${p.count}</strong></td>
+                                    <td>${(p.width * p.height * p.count).toLocaleString()} mm²</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            container.innerHTML = `
+                <div class="summary-grid fade-in">
+                    <div class="summary-card">
+                        <div class="summary-value" style="color:var(--primary);">${data.boardsUsed}</div>
+                        <div class="summary-label">Tableros Necesarios</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" style="color:var(--success);">${data.efficiency}%</div>
+                        <div class="summary-label">Eficiencia Global</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" style="color:var(--danger);">${(data.waste / 1000000).toFixed(2)} m²</div>
+                        <div class="summary-label">Desperdicio Total</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" style="color:var(--info);">${data.allPlaced.length}</div>
+                        <div class="summary-label">Piezas Colocadas</div>
+                    </div>
+                </div>
+                ${boardsHtml}
+                ${cutListHtml}
+                <div style="display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;" class="no-print">
+                    <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
+                    <button class="btn btn-outline" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                    <button class="btn btn-outline" onclick="switchTab('pieces')"><i class="fas fa-edit"></i> Modificar Piezas</button>
+                </div>
+            `;
+
+            // Draw canvases
+            setTimeout(() => {
+                data.boards.forEach((board, idx) => {
+                    drawBoard(`canvas-${idx}`, board, data);
+                });
+                container.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+            }, 100);
+        }
+
+        function drawBoard(canvasId, board, data) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const scale = canvas.width / data.bw;
+
+            // Clear
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Board outline
+            ctx.strokeStyle = 'rgba(212,165,116,0.3)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+            // Draw pieces
+            board.pieces.forEach(piece => {
+                let px = piece.x * scale + 1;
+                let py = piece.y * scale + 1;
+                let pw = piece.width * scale;
+                let ph = piece.height * scale;
+
+                // Piece fill
+                ctx.fillStyle = piece.color + '33';
+                ctx.fillRect(px, py, pw, ph);
+
+                // Piece border
+                ctx.strokeStyle = piece.color;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(px, py, pw, ph);
+
+                // Piece label
+                if (pw > 30 && ph > 20) {
+                    ctx.fillStyle = piece.color;
+                    ctx.font = `${Math.min(11, pw / 6)}px Inter, sans-serif`;
+                    ctx.textBaseline = 'middle';
+                    ctx.textAlign = 'center';
+
+                    let label = piece.name;
+                    if (pw > 60) {
+                        label += ` ${piece.width}×${piece.height}`;
+                    }
+
+                    ctx.fillText(label, px + pw / 2, py + ph / 2);
+                }
+            });
+
+            // Kerf lines (visual)
+            if (data.kerf > 0) {
+                ctx.strokeStyle = 'rgba(248,113,113,0.2)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                board.pieces.forEach(piece => {
+                    let px = (piece.x + piece.width) * scale + 1;
+                    let py = (piece.y + piece.height) * scale + 1;
+                    ctx.beginPath();
+                    ctx.moveTo(px, 0); ctx.lineTo(px, canvas.height);
+                    ctx.moveTo(0, py); ctx.lineTo(canvas.width, py);
+                    ctx.stroke();
+                });
+                ctx.setLineDash([]);
+            }
+
+            // Hover tooltip
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mx = (e.clientX - rect.left) / rect.width * data.bw;
+                const my = (e.clientY - rect.top) / rect.height * data.bh;
+
+                const hovered = board.pieces.find(p =>
+                    mx >= p.x && mx <= p.x + p.width && my >= p.y && my <= p.y + p.height
+                );
+
+                const tooltip = document.getElementById('tooltip');
+                if (hovered) {
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = (e.clientX + 15) + 'px';
+                    tooltip.style.top = (e.clientY - 10) + 'px';
+                    tooltip.innerHTML = `<strong>${hovered.name}</strong><br>${hovered.width} × ${hovered.height} mm<br>Pos: ${hovered.x}, ${hovered.y}${hovered.rotated ? '<br><span style="color:var(--warning);">Rotada</span>' : ''}`;
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                document.getElementById('tooltip').style.display = 'none';
+            });
+        }
+
+        // ===== EXPORT =====
+        function exportCSV() {
+            if (!lastResults) return;
+
+            let csv = 'Tablero,Pieza,Ancho(mm),Largo(mm),Pos X,Pos Y,Rotada\n';
+            lastResults.boards.forEach((board, idx) => {
+                board.pieces.forEach(p => {
+                    csv += `${idx + 1},${p.name},${p.width},${p.height},${p.x},${p.y},${p.rotated ? 'Si' : 'No'}\n`;
+                });
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `corte-seguro-plan-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV exportado correctamente', 'success');
+        }
+
+        function exportResults() {
+            if (!lastResults) {
+                showToast('Primero calcula una optimización', 'warning');
+                return;
+            }
+            exportCSV();
+        }
+
+        // ===== SCROLL ANIMATIONS =====
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // ===== INIT =====
+        renderPieces();
+
+        // Animate hero stats
+        function animateValue(id, start, end, duration, suffix = '') {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const range = end - start;
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + range * eased);
+                el.textContent = current + suffix;
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        setTimeout(() => {
+            animateValue('statBoards', 0, 12540, 2000);
+            animateValue('statEfficiency', 0, 97, 2000, '%');
+        }, 1000);
+    </script>
+</body>
+
+</html>
